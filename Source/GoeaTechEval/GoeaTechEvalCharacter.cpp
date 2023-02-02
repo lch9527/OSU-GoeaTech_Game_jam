@@ -7,18 +7,13 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "Climbing_system.h"
 #include "GameFramework/SpringArmComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AGoeaTechEvalCharacter
 
-AGoeaTechEvalCharacter::AGoeaTechEvalCharacter(const class FObjectInitializer& ObjectInitializer)
+AGoeaTechEvalCharacter::AGoeaTechEvalCharacter()
 {
-	//FName TestHUDName = FName(TEXT("ThisIsMyTestFName"));
-	Super(ObjectInitializer.SetDefaultSubobjectClass<UCharacterMovementComponent>(ACharacter::GetMovementBase));
-	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -81,22 +76,6 @@ void AGoeaTechEvalCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AGoeaTechEvalCharacter::OnResetVR);
 }
 
-void AGoeaTechEvalCharacter::Attack(USkeletalMeshComponent* SK_Mesh)
-{
-
-
-	
-}
-
-
-/*
-void AGoeaTechEvalCharacter::AGoeaTechEvalCharacter(const class FObjectInitializer& ObjectInitializer)
-{
-	Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomMovementComponent>(ACharacter::Climbing_system))
-
-}*/
-
-
 
 void AGoeaTechEvalCharacter::OnResetVR()
 {
@@ -111,15 +90,13 @@ void AGoeaTechEvalCharacter::OnResetVR()
 
 void AGoeaTechEvalCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		Jump();
+	Jump();
 }
 
 void AGoeaTechEvalCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
-		StopJumping();
+	StopJumping();
 }
-
-
 
 void AGoeaTechEvalCharacter::TurnAtRate(float Rate)
 {
@@ -149,17 +126,15 @@ void AGoeaTechEvalCharacter::MoveForward(float Value)
 
 void AGoeaTechEvalCharacter::MoveRight(float Value)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
+	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
+
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
 }
-
-
