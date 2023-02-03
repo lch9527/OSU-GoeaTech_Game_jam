@@ -11,9 +11,12 @@
 
 //////////////////////////////////////////////////////////////////////////
 // AGoeaTechEvalCharacter
+class UCustomMovementComponent;
 
-AGoeaTechEvalCharacter::AGoeaTechEvalCharacter()
+AGoeaTechEvalCharacter::AGoeaTechEvalCharacter(const class FObjectInitializer&ObjectInitializer) 
+	:Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
+	CustomCharacterMovementComponent = Cast<UCustomMovementComponent>(GetCharacterMovement());
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 

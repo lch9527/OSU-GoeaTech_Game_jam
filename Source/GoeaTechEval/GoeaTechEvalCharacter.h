@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CustomMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "GoeaTechEvalCharacter.generated.h"
 
@@ -11,16 +12,18 @@ class AGoeaTechEvalCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-		/** Camera boom positioning the camera behind the character */
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class USpringArmComponent* CameraBoom;
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
 public:
-	AGoeaTechEvalCharacter();
+	AGoeaTechEvalCharacter(const FObjectInitializer& ObjectInitializer);
 
+	//UFUNCTION(BlueprintPure) FORCEINLINE CustomMovementComponent* GetZippyCharacterMovement() const { return ZippyCharacterMovementComponent; }
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement) UCustomMovementComponent* CustomCharacterMovementComponent;
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseTurnRate;

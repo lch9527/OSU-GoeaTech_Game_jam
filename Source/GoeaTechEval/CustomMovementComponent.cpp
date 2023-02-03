@@ -97,3 +97,27 @@ FNetworkPredictionData_Client* UCustomMovementComponent::GetPredictionData_Clien
 	return ClientPredictionData;
 
 }
+
+void UCustomMovementComponent::Enable_Climb()
+{
+}
+
+void UCustomMovementComponent::Disable_Climb()
+{
+}
+
+void UCustomMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
+{
+	Super::UpdateFromCompressedFlags(Flags);
+
+	Safe_ToClimb = (Flags & FSavedMove_Custom::FLAG_Custom_0) != 0;
+	
+
+}
+
+void UCustomMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
+{
+	Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
+
+	//Safe_bPrevWantsToCrouch = bWantsToCrouch;
+}

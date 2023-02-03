@@ -11,6 +11,8 @@ class AGoeaTechEvalGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+
+
 };
 
 

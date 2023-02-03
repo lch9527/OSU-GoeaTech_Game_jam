@@ -53,5 +53,21 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 
 		virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 
+
+		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement) UCustomMovementComponent* CustomMovementComponent;
+		UFUNCTION(BlueprintPure) FORCEINLINE UCustomMovementComponent* GetCostomCharacterMovement() const { return CustomMovementComponent; }
+
+
+		UFUNCTION(BlueprintCallable) void Enable_Climb();
+		UFUNCTION(BlueprintCallable) void Disable_Climb();
+
+
+	protected:
+		virtual void UpdateFromCompressedFlags(uint8 Flags) override;
+		virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
+
+		UPROPERTY(BlueprintReadWrite) bool Onclimb = false;
+		UPROPERTY(BlueprintReadWrite) float Climb_speed = 300.f;
+
 	
 };
