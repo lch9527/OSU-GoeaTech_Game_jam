@@ -15,6 +15,7 @@ bool UCustomMovementComponent::FSavedMove_Custom::CanCombineWith(const FSavedMov
 
 	if (Saved_ToClimb != NewCustomMove->Saved_ToClimb)
 	{
+		
 		return false;
 	}
 
@@ -33,7 +34,7 @@ uint8 UCustomMovementComponent::FSavedMove_Custom::GetCompressedFlags() const
 
 	uint8 Result = FSavedMove_Character::GetCompressedFlags();
 
-	if (Saved_ToClimb) Result |= FLAG_Custom_0;
+	if (Saved_ToClimb) Result |= FLAG_Climb;
 
 	return Result;
 }

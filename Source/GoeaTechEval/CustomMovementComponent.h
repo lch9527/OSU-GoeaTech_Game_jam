@@ -18,13 +18,10 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 	{
 	public:
 		typedef FSavedMove_Character Super;
-		/*enum CompressedFlags
+		enum CompressedFlags
 		{
-			FLAG_Sprint = 0x10,
-			FLAG_Dash = 0x20,
-			FLAG_Custom_2 = 0x40,
-			FLAG_Custom_3 = 0x80,
-		};*/
+			FLAG_Climb = 0x10,
+		};
 
 		uint8 Saved_ToClimb : 1;
 
