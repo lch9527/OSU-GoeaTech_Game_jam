@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CustomMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "GoeaTechEvalCharacter.generated.h"
 
+class UCustomMovementComponent;
 UCLASS(config = Game)
 class AGoeaTechEvalCharacter : public ACharacter
 {
@@ -22,6 +22,8 @@ class AGoeaTechEvalCharacter : public ACharacter
 public:
 	AGoeaTechEvalCharacter(const FObjectInitializer& ObjectInitializer);
 
+	virtual void Tick(float DeltaTime) override;
+
 	//UFUNCTION(BlueprintPure) FORCEINLINE CustomMovementComponent* GetZippyCharacterMovement() const { return ZippyCharacterMovementComponent; }
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement) UCustomMovementComponent* CustomCharacterMovementComponent;
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -33,6 +35,8 @@ public:
 		float BaseLookUpRate;
 
 protected:
+
+	
 
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
@@ -71,5 +75,11 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	
+	FCollisionQueryParams GetIgnoreCharacterParams() const;
+
+	UFUNCTION(BlueprintCallable)
+		FVector PrintHit(FHitResult WallHit);
 };
 

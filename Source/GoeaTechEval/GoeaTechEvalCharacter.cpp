@@ -7,11 +7,12 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
+#include "CustomMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AGoeaTechEvalCharacter
-class UCustomMovementComponent;
+
 
 AGoeaTechEvalCharacter::AGoeaTechEvalCharacter(const class FObjectInitializer&ObjectInitializer) 
 	:Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -141,3 +142,28 @@ void AGoeaTechEvalCharacter::MoveRight(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
+
+FCollisionQueryParams AGoeaTechEvalCharacter::GetIgnoreCharacterParams() const
+{
+	FCollisionQueryParams Params;
+	//ACharacter
+	TArray<AActor*> CharacterChildren;
+	GetAllChildActors(CharacterChildren);
+	Params.AddIgnoredActors(CharacterChildren);
+	//Collision Cylinder
+	Params.AddIgnoredActor(this);
+
+	return Params;
+}
+
+FVector AGoeaTechEvalCharacter::PrintHit(FHitResult WallHit)
+{
+	return WallHit.ImpactPoint;;
+}
+
+void AGoeaTechEvalCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
