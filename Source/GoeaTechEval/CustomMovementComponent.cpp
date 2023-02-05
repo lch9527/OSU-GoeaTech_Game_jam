@@ -215,13 +215,14 @@ bool UCustomMovementComponent::Tryclimb()
 	FVector r_start = (right * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10);
 	FVector r_end = (right * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z);
 
-	DrawDebugLine(GetWorld(), Start,Start+ End * 60, FColor::Green, true, 0.1, 0, 5);
+	//DrawDebugLine(GetWorld(), Start,Start+ End * 60, FColor::Green, true, 0.1, 0, 5);
 
 	GetWorld()->LineTraceSingleByProfile(WallHit, Start, End*60 + Start, "BlockAll", Params);
 	GetWorld()->LineTraceSingleByProfile(WallHit2, h_start, h_end, "BlockAll", Params);
 	GetWorld()->LineTraceSingleByProfile(WallHit3, l_start, l_end, "BlockAll", Params);
 	GetWorld()->LineTraceSingleByProfile(WallHit4, r_start, r_end, "BlockAll", Params);
-	if (WallHit.IsValidBlockingHit())
+	if (WallHit.IsValidBlockingHit() || WallHit2.IsValidBlockingHit() ||
+		WallHit3.IsValidBlockingHit() || WallHit4.IsValidBlockingHit())
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("2"));
 		Safe_ToClimb = true;
@@ -240,11 +241,19 @@ bool UCustomMovementComponent::Tryclimb()
 FVector UCustomMovementComponent::GetClimbSurfaceNormal() const
 {
 
+	TArray<FHitResult> Hittmp = { WallHit , WallHit2 , WallHit3, WallHit4 };
+	int size = 0;
+	for (int i = 0; i < 3; i++) {
+		if (Hittmp[i].IsValidBlockingHit()) {
+			size += 1;
+		}
+	}
 
 	if (WallHit.IsValidBlockingHit()) {
-
-		return (WallHit.Normal + WallHit2.Normal + WallHit3.Normal + WallHit4.Normal)/4;
+		
+		return (WallHit.Normal + WallHit2.Normal + WallHit3.Normal + WallHit4.Normal)/size;
 	}
+
 	return FVector::Zero();
 }
 
@@ -283,6 +292,9 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	{
 		return;
 	}
+
+	
+
 	bJustTeleported = false;
 	FVector Start = UpdatedComponent->GetComponentLocation();
 	FVector End = UpdatedComponent->GetForwardVector();
@@ -290,25 +302,33 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 
 	GetWorld()->LineTraceSingleByProfile(WallHit, Start, End * 60 + Start, "BlockAll", Params);
 
-	if (WallHit.IsValidBlockingHit())
+	if (WallHit.IsValidBlockingHit() || WallHit2.IsValidBlockingHit() ||
+		WallHit3.IsValidBlockingHit() || WallHit4.IsValidBlockingHit())
 	{
 		CurrentClimbingNormal = GetClimbSurfaceNormal();
 		CurrentClimbingPosition = WallHit.ImpactPoint;
 	}
-	else {
+	/*else {
 		SetMovementMode(EMovementMode::MOVE_Falling);
+		StartNewPhysics(deltaTime, Iterations);
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("1"));
 		return;
-	}
+	}*/
 
+
+	//UKismetMathLibrary::LessLess_VectorRotator(Velocity,UpdatedComponent->GetComponentRotation());
+	//UpdatedComponent->GetComponentRotation();
+
+	Move_left_right = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Y;
 	
-
+	Move_up_down = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Z;
 
 	const bool bIsOnCeiling = FVector::Parallel(CurrentClimbingNormal, FVector::UpVector);
 	if (!bWantsToClimb || CurrentClimbingNormal.IsZero() || bIsOnCeiling)
 	{
+
 		bWantsToClimb = false;
 		SetMovementMode(EMovementMode::MOVE_Falling);
-		StartNewPhysics(deltaTime, Iterations);
 		return;
 	}
 
@@ -318,7 +338,7 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	{
 		constexpr float Friction = 0.0f;
 		constexpr bool bFluid = false;
-		CalcVelocity(deltaTime, Friction, bFluid, 400.f);
+		CalcVelocity(deltaTime, Friction, bFluid, 900.f);
 	}
 
 	ApplyRootMotionToVelocity(deltaTime);
@@ -353,10 +373,10 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	const FQuat Rotation = UpdatedComponent->GetComponentQuat();
 
 	const FVector ForwardDifference = (CurrentClimbingPosition - Location).ProjectOnTo(Forward);
-	const FVector Offset = -CurrentClimbingNormal * (ForwardDifference.Length() - 4);
+	const FVector Offset = -CurrentClimbingNormal * (ForwardDifference.Length());
 
 	constexpr bool bSweep = true;
-	UpdatedComponent->MoveComponent(Offset * deltaTime, Rotation, bSweep);
+	UpdatedComponent->MoveComponent(Offset * deltaTime*2, Rotation, bSweep);
 
 
 	//float remainingTime = deltaTime;

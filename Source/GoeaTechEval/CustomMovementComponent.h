@@ -70,6 +70,8 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 	public:
 		UCustomMovementComponent();
 		float CapR() const;
+		UPROPERTY(BlueprintReadOnly) float Move_left_right = 0.f;
+		UPROPERTY(BlueprintReadOnly) float Move_up_down = 0.f;
 
 		virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 		virtual void UpdateCharacterStateAfterMovement(float DeltaSeconds) override;
