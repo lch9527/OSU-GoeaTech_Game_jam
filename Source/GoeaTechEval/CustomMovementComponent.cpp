@@ -123,20 +123,23 @@ bool UCustomMovementComponent::CanAttemptJump() const
 
 bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 {
-	bool bIsCliming = IsCliming();
+	
+	/*if (IsCliming())
+	{
+		FVector Start = UpdatedComponent->GetComponentLocation();
+		auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
+		FHitResult Hit;
+		GetWorld()->LineTraceSingleByProfile(Hit, Start, Hit.Normal * 2, "BlockAll", Params);
+		Velocity += Hit.Normal * WallJumpOffForce;
+		Velocity.Z += 300.f;
+		bWantsToClimb = false;
+		SetMovementMode(EMovementMode::MOVE_Falling);
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("2"));
+		Super::DoJump(bReplayingMoves);
+		return true;
+	}*/
 	if (Super::DoJump(bReplayingMoves))
 	{
-		if (bIsCliming)
-		{
-			FVector Start = UpdatedComponent->GetComponentLocation();
-			
-			auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
-			FHitResult Hit;
-			GetWorld()->LineTraceSingleByProfile(Hit, Start, Hit.Normal * 2, "BlockAll", Params);
-			Velocity += Hit.Normal * WallJumpOffForce;
-			Velocity.Z += 300.f;
-		}
-
 		return true;
 	}
 	return false;
@@ -156,7 +159,7 @@ void UCustomMovementComponent::Disable_Climb()
 
 bool UCustomMovementComponent::IsCustomMovementMode(ECustomMovementMode InCustomMovementMode) const
 {
-	return MovementMode == MOVE_Custom && CustomMovementMode == InCustomMovementMode;
+	return EMovementMode::MOVE_Custom && CustomMovementMode == InCustomMovementMode;
 }
 
 void UCustomMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
