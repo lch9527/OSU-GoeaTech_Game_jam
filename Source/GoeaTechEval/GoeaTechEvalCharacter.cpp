@@ -121,6 +121,7 @@ void AGoeaTechEvalCharacter::MoveForward(float Value)
 {
 	FVector Direction;
 
+
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -146,6 +147,7 @@ void AGoeaTechEvalCharacter::Climb()
 
 void AGoeaTechEvalCharacter::MoveRight(float Value)
 {
+	FVector Direction;
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
@@ -153,7 +155,12 @@ void AGoeaTechEvalCharacter::MoveRight(float Value)
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		if (CustomCharacterMovementComponent->IsCliming())
+		{
+			Direction = FVector::CrossProduct(CustomCharacterMovementComponent->GetClimbSurfaceNormal(), GetActorUpVector());
+			
+		}
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
