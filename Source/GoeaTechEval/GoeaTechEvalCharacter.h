@@ -44,6 +44,9 @@ protected:
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
+	/** Climb. */
+	void Climb();
+
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
@@ -69,6 +72,7 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+	
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -81,5 +85,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		FVector PrintHit(FHitResult WallHit);
+
+	
 };
 

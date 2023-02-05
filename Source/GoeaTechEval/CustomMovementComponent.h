@@ -45,6 +45,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 	};
 
 	bool Safe_ToClimb;
+	
 
 	class FNetworkPredictionData_Client_Custom : public FNetworkPredictionData_Client_Character
 	{
@@ -76,7 +77,8 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 		virtual bool CanAttemptJump() const override;
 		virtual bool DoJump(bool bReplayingMoves) override;
-
+		bool Tryclimb();
+		FVector GetClimbSurfaceNormal() const;
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement) UCustomMovementComponent* CustomMovementComponent;
 		UFUNCTION(BlueprintPure) FORCEINLINE UCustomMovementComponent* GetCostomCharacterMovement() const { return CustomMovementComponent; }
@@ -84,8 +86,9 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 
 		UFUNCTION(BlueprintCallable) void Enable_Climb();
 		UFUNCTION(BlueprintCallable) void Disable_Climb();
-		UFUNCTION(BlueprintPure) bool IsCustomMovementMode(ECustomMovementMode InCustomMovementMode) const;
 		UFUNCTION(BlueprintPure) bool IsCliming() const { return IsCustomMovementMode(CMOVE_Climb); }
+		UFUNCTION(BlueprintPure) bool IsCustomMovementMode(ECustomMovementMode InCustomMovementMode) const;
+		
 		
 
 
@@ -96,7 +99,10 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 		virtual void InitializeComponent() override;
 		
-
+		bool bWantsToClimb = false;
+		FHitResult WallHit, WallHit2, WallHit3, WallHit4;
+		FVector CurrentClimbingNormal;
+		FVector CurrentClimbingPosition;
 		UPROPERTY(BlueprintReadWrite) bool Onclimb = false;
 		UPROPERTY(BlueprintReadWrite) float Climb_speed = 300.f;
 
@@ -105,7 +111,6 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		
 		void EnterClimb(EMovementMode PrevMode, ECustomMovementMode PrevCustomMode);
 		void ExitClimb();
-		bool Tryclimb();
 		double AngleBetween(FVector a, FVector b);
 		bool CanClimb() const;
 		virtual void MoveAlongWall(const FVector& InVelocity, float DeltaSeconds, FStepDownResult* OutStepDownResult = NULL);

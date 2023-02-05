@@ -78,6 +78,9 @@ void AGoeaTechEvalCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AGoeaTechEvalCharacter::OnResetVR);
+
+	PlayerInputComponent->BindAction("Climb", IE_Pressed, this, &AGoeaTechEvalCharacter::Climb);
+	
 }
 
 
@@ -116,6 +119,8 @@ void AGoeaTechEvalCharacter::LookUpAtRate(float Rate)
 
 void AGoeaTechEvalCharacter::MoveForward(float Value)
 {
+	FVector Direction;
+
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -123,9 +128,20 @@ void AGoeaTechEvalCharacter::MoveForward(float Value)
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		if (CustomCharacterMovementComponent->IsCliming())
+		{
+			Direction = FVector::CrossProduct(CustomCharacterMovementComponent->GetClimbSurfaceNormal(), -GetActorRightVector());
+		}
 		AddMovementInput(Direction, Value);
 	}
+	
+}
+
+void AGoeaTechEvalCharacter::Climb()
+{
+	CustomCharacterMovementComponent->Tryclimb();
+
 }
 
 void AGoeaTechEvalCharacter::MoveRight(float Value)
