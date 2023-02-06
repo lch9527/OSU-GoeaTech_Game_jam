@@ -101,6 +101,8 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 		virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 		virtual void InitializeComponent() override;
+
+		
 		
 		bool bWantsToClimb = false;
 		FHitResult WallHit, WallHit2, WallHit3, WallHit4;

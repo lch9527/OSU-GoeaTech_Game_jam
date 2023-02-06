@@ -203,12 +203,12 @@ bool UCustomMovementComponent::Tryclimb()
 	FVector right = UpdatedComponent->GetRightVector();
 	FVector left = -right;
 	//Start += Start + UpdatedComponent->GetForwardVector() * 50;
-	FCollisionQueryParams Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
+	
 	
 	//Params.AddIgnoredActor(AGoeaTechEvalCharacter);
 
 
-
+	FCollisionQueryParams Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
 	/*DrawDebugLine(GetWorld(), (left * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10), (left * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z), FColor::Red, true, 0.1, 0, 5);
 	DrawDebugLine(GetWorld(), (right * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10), (right * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z), FColor::Black, true, 0.1, 0, 5);
 	DrawDebugLine(GetWorld(), FVector(Start.X, Start.Y, Start.Z + 50), End * 50 + FVector(Start.X, Start.Y, Start.Z + 60), FColor::Green, true, 0.1, 0, 5);*/
@@ -221,7 +221,7 @@ bool UCustomMovementComponent::Tryclimb()
 	FVector r_end = (right * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z);
 
 	//DrawDebugLine(GetWorld(), Start,Start+ End * 60, FColor::Green, true, 0.1, 0, 5);
-
+	
 	GetWorld()->LineTraceSingleByProfile(WallHit, Start, End*60 + Start, "BlockAll", Params);
 	GetWorld()->LineTraceSingleByProfile(WallHit2, h_start, h_end, "BlockAll", Params);
 	GetWorld()->LineTraceSingleByProfile(WallHit3, l_start, l_end, "BlockAll", Params);
@@ -229,7 +229,7 @@ bool UCustomMovementComponent::Tryclimb()
 	if (WallHit.IsValidBlockingHit() || WallHit2.IsValidBlockingHit() ||
 		WallHit3.IsValidBlockingHit() || WallHit4.IsValidBlockingHit())
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("2"));
+		
 		Safe_ToClimb = true;
 	}
 	else {
@@ -245,18 +245,48 @@ bool UCustomMovementComponent::Tryclimb()
 
 FVector UCustomMovementComponent::GetClimbSurfaceNormal() const
 {
+	FHitResult THit, THit2, THit3, THit4;
+	FVector Start = UpdatedComponent->GetComponentLocation();
+	FVector End = UpdatedComponent->GetForwardVector();
+	FVector right = UpdatedComponent->GetRightVector();
+	FVector left = -right;
+	//Start += Start + UpdatedComponent->GetForwardVector() * 50;
 
-	TArray<FHitResult> Hittmp = { WallHit , WallHit2 , WallHit3, WallHit4 };
+
+	//Params.AddIgnoredActor(AGoeaTechEvalCharacter);
+
+
+	FCollisionQueryParams Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
+	/*DrawDebugLine(GetWorld(), (left * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10), (left * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z), FColor::Red, true, 0.1, 0, 5);
+	DrawDebugLine(GetWorld(), (right * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10), (right * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z), FColor::Black, true, 0.1, 0, 5);
+	DrawDebugLine(GetWorld(), FVector(Start.X, Start.Y, Start.Z + 50), End * 50 + FVector(Start.X, Start.Y, Start.Z + 60), FColor::Green, true, 0.1, 0, 5);*/
+
+	FVector h_start = FVector(Start.X, Start.Y, Start.Z + 50);
+	FVector h_end = End * 50 + FVector(Start.X, Start.Y, Start.Z + 60);
+	FVector l_start = (left * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10);
+	FVector l_end = (left * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z);
+	FVector r_start = (right * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10);
+	FVector r_end = (right * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z);
+
+	//DrawDebugLine(GetWorld(), Start,Start+ End * 60, FColor::Green, true, 0.1, 0, 5);
+
+	GetWorld()->LineTraceSingleByProfile(THit, Start, End * 60 + Start, "BlockAll", Params);
+	GetWorld()->LineTraceSingleByProfile(THit2, h_start, h_end, "BlockAll", Params);
+	GetWorld()->LineTraceSingleByProfile(THit3, l_start, l_end, "BlockAll", Params);
+	GetWorld()->LineTraceSingleByProfile(THit4, r_start, r_end, "BlockAll", Params);
+
+
+	TArray<FHitResult> Hittmp = { THit , THit2 , THit3, THit4 };
 	int size = 0;
 	for (int i = 0; i < 3; i++) {
 		if (Hittmp[i].IsValidBlockingHit()) {
 			size += 1;
 		}
 	}
-
-	if (WallHit.IsValidBlockingHit()) {
-		
-		return (WallHit.Normal + WallHit2.Normal + WallHit3.Normal + WallHit4.Normal)/size;
+	
+	if (THit.IsValidBlockingHit()) {
+		GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("2"));
+		return (THit.Normal + THit2.Normal + THit3.Normal + THit4.Normal)/size;
 	}
 
 	return FVector::Zero();
@@ -310,6 +340,7 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	if (WallHit.IsValidBlockingHit() || WallHit2.IsValidBlockingHit() ||
 		WallHit3.IsValidBlockingHit() || WallHit4.IsValidBlockingHit())
 	{
+		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("1"));
 		CurrentClimbingNormal = GetClimbSurfaceNormal();
 		CurrentClimbingPosition = WallHit.ImpactPoint;
 	}
@@ -329,8 +360,8 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	Move_up_down = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Z;
 
 	const bool bIsOnCeiling = FVector::Parallel(CurrentClimbingNormal, FVector::UpVector);
-	if (!bWantsToClimb || CurrentClimbingNormal.IsZero() || bIsOnCeiling)
-	{
+	if (!bWantsToClimb  || bIsOnCeiling)
+	{//|| CurrentClimbingNormal.IsZero()
 
 		bWantsToClimb = false;
 		SetMovementMode(EMovementMode::MOVE_Falling);
@@ -361,6 +392,7 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	FQuat Climbingrotation = FMath::QInterpTo(Current, Target, deltaTime, 5);
 
 	SafeMoveUpdatedComponent(Adjusted, Climbingrotation, true, Hit);
+
 	if (Hit.Time < 1.f)
 	{
 		HandleImpact(Hit, deltaTime, Adjusted);
