@@ -162,6 +162,8 @@ bool UCustomMovementComponent::IsCustomMovementMode(ECustomMovementMode InCustom
 	return EMovementMode::MOVE_Custom && CustomMovementMode == InCustomMovementMode;
 }
 
+
+
 void UCustomMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 {
 	Super::UpdateFromCompressedFlags(Flags);

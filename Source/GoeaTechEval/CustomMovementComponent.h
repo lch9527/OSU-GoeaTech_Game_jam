@@ -88,6 +88,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 
 		UFUNCTION(BlueprintCallable) void Enable_Climb();
 		UFUNCTION(BlueprintCallable) void Disable_Climb();
+		UFUNCTION(BlueprintPure) bool Is_Stop() const { return Velocity.Size() <= 10 ? true : false; }
 		UFUNCTION(BlueprintPure) bool IsCliming() const { return IsCustomMovementMode(CMOVE_Climb); }
 		UFUNCTION(BlueprintPure) bool IsCustomMovementMode(ECustomMovementMode InCustomMovementMode) const;
 		
