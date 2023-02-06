@@ -97,7 +97,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 
 	protected:
 		virtual void UpdateFromCompressedFlags(uint8 Flags) override;
-		virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
+		//virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
 		virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 		virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 		virtual void InitializeComponent() override;
@@ -115,6 +115,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 
 		
 		void EnterClimb(EMovementMode PrevMode, ECustomMovementMode PrevCustomMode);
+		void Dotracing();
 		void ExitClimb();
 		double AngleBetween(FVector a, FVector b);
 		bool CanClimb() const;

@@ -87,7 +87,7 @@ UCustomMovementComponent::UCustomMovementComponent()
 
 void UCustomMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 {
-	
+	/*GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("1111"));*/
 	if (IsFalling())
 	{
 		Tryclimb();
@@ -173,14 +173,11 @@ void UCustomMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 
 }
 
-void UCustomMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
-{
-	Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
-
-	
-
-	//Safe_bPrevWantsToCrouch = bWantsToCrouch;
-}
+//void UCustomMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
+//{
+//	Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
+//
+//}
 
 void UCustomMovementComponent::EnterClimb(EMovementMode PrevMode, ECustomMovementMode PrevCustomMode)
 {
@@ -250,31 +247,25 @@ FVector UCustomMovementComponent::GetClimbSurfaceNormal() const
 	FVector End = UpdatedComponent->GetForwardVector();
 	FVector right = UpdatedComponent->GetRightVector();
 	FVector left = -right;
-	//Start += Start + UpdatedComponent->GetForwardVector() * 50;
-
-
-	//Params.AddIgnoredActor(AGoeaTechEvalCharacter);
-
 
 	FCollisionQueryParams Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
-	/*DrawDebugLine(GetWorld(), (left * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10), (left * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z), FColor::Red, true, 0.1, 0, 5);
-	DrawDebugLine(GetWorld(), (right * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10), (right * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z), FColor::Black, true, 0.1, 0, 5);
-	DrawDebugLine(GetWorld(), FVector(Start.X, Start.Y, Start.Z + 50), End * 50 + FVector(Start.X, Start.Y, Start.Z + 60), FColor::Green, true, 0.1, 0, 5);*/
 
 	FVector h_start = FVector(Start.X, Start.Y, Start.Z + 50);
-	FVector h_end = End * 50 + FVector(Start.X, Start.Y, Start.Z + 60);
+	FVector h_end = End * 70 + FVector(Start.X, Start.Y, Start.Z + 80);
 	FVector l_start = (left * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10);
-	FVector l_end = (left * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z);
+	FVector l_end = (left * -50 + End * 70) + FVector(Start.X, Start.Y, Start.Z);
 	FVector r_start = (right * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10);
-	FVector r_end = (right * -20 + End * 60) + FVector(Start.X, Start.Y, Start.Z);
+	FVector r_end = (right * -50 + End * 70) + FVector(Start.X, Start.Y, Start.Z);
 
-	//DrawDebugLine(GetWorld(), Start,Start+ End * 60, FColor::Green, true, 0.1, 0, 5);
+	//DrawDebugLine(GetWorld(), Start, End * 80 + FVector(Start.X, Start.Y, Start.Z - 50), FColor::Black, false, 0.1, 0, 5);
+	//DrawDebugLine(GetWorld(), Start, h_end, FColor::Green, false, 0.1, 0, 5);
+	//DrawDebugLine(GetWorld(), Start, l_end, FColor::Blue, false, 0.1, 0, 5);
+	//DrawDebugLine(GetWorld(), Start, r_end , FColor::Red, false, 0.1, 0, 5);
 
-	GetWorld()->LineTraceSingleByProfile(THit, Start, End * 60 + Start, "BlockAll", Params);
-	GetWorld()->LineTraceSingleByProfile(THit2, h_start, h_end, "BlockAll", Params);
-	GetWorld()->LineTraceSingleByProfile(THit3, l_start, l_end, "BlockAll", Params);
-	GetWorld()->LineTraceSingleByProfile(THit4, r_start, r_end, "BlockAll", Params);
-
+	GetWorld()->LineTraceSingleByProfile(THit, Start, End * 90 + Start, "BlockAll", Params);
+	GetWorld()->LineTraceSingleByProfile(THit2, Start, h_end, "BlockAll", Params);
+	GetWorld()->LineTraceSingleByProfile(THit3, Start, l_end, "BlockAll", Params);
+	GetWorld()->LineTraceSingleByProfile(THit4, Start, r_end, "BlockAll", Params);
 
 	TArray<FHitResult> Hittmp = { THit , THit2 , THit3, THit4 };
 	int size = 0;
@@ -285,7 +276,7 @@ FVector UCustomMovementComponent::GetClimbSurfaceNormal() const
 	}
 	
 	if (THit.IsValidBlockingHit()) {
-		GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("2"));
+		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("2"));
 		return (THit.Normal + THit2.Normal + THit3.Normal + THit4.Normal)/size;
 	}
 
@@ -309,6 +300,11 @@ double UCustomMovementComponent::AngleBetween(FVector a, FVector b)
 	return angle;
 }
 
+void UCustomMovementComponent::Dotracing()
+{
+	
+}
+
 bool UCustomMovementComponent::CanClimb() const
 {
 	return false;
@@ -329,7 +325,6 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	}
 
 	
-
 	bJustTeleported = false;
 	FVector Start = UpdatedComponent->GetComponentLocation();
 	FVector End = UpdatedComponent->GetForwardVector();
@@ -360,8 +355,8 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	Move_up_down = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Z;
 
 	const bool bIsOnCeiling = FVector::Parallel(CurrentClimbingNormal, FVector::UpVector);
-	if (!bWantsToClimb  || bIsOnCeiling)
-	{//|| CurrentClimbingNormal.IsZero()
+	if (!bWantsToClimb || CurrentClimbingNormal.IsZero() || bIsOnCeiling)
+	{
 
 		bWantsToClimb = false;
 		SetMovementMode(EMovementMode::MOVE_Falling);
