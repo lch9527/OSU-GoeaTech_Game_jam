@@ -87,12 +87,13 @@ UCustomMovementComponent::UCustomMovementComponent()
 
 void UCustomMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 {
+	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
 	/*GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("1111"));*/
-	if (IsFalling())
-	{
+	if (IsFalling() || bWantsToClimb) {
 		Tryclimb();
 	}
-	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
+	
+	
 }
 
 void UCustomMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds)
@@ -124,7 +125,7 @@ bool UCustomMovementComponent::CanAttemptJump() const
 bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 {
 	
-	/*if (IsCliming())
+	if (IsCliming())
 	{
 		FVector Start = UpdatedComponent->GetComponentLocation();
 		auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
@@ -132,12 +133,12 @@ bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 		GetWorld()->LineTraceSingleByProfile(Hit, Start, Hit.Normal * 2, "BlockAll", Params);
 		Velocity += Hit.Normal * WallJumpOffForce;
 		Velocity.Z += 300.f;
-		bWantsToClimb = false;
+		//bWantsToClimb = false;
 		SetMovementMode(EMovementMode::MOVE_Falling);
 		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("2"));
 		Super::DoJump(bReplayingMoves);
 		return true;
-	}*/
+	}
 	if (Super::DoJump(bReplayingMoves))
 	{
 		return true;
@@ -191,7 +192,9 @@ void UCustomMovementComponent::ExitClimb()
 
 bool UCustomMovementComponent::Tryclimb()
 {
-
+	/*if (!bWantsToClimb) {
+		return false;
+	}*/
 	UpdateAverageHit();
 
 	if (UpdateAverageHit())
@@ -212,55 +215,11 @@ bool UCustomMovementComponent::Tryclimb()
 	return true;
 }
 
-FVector UCustomMovementComponent::GetClimbSurfaceNormal() const
-{
-	FHitResult THit, THit2, THit3, THit4;
-	FVector Start = UpdatedComponent->GetComponentLocation();
-	FVector End = UpdatedComponent->GetForwardVector();
-	FVector right = UpdatedComponent->GetRightVector();
-	FVector left = -right;
-
-	FCollisionQueryParams Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
-
-	FVector h_start = FVector(Start.X, Start.Y, Start.Z + 50);
-	FVector h_end = End * 70 + FVector(Start.X, Start.Y, Start.Z + 80);
-	FVector l_start = (left * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10);
-	FVector l_end = (left * -50 + End * 70) + FVector(Start.X, Start.Y, Start.Z);
-	FVector r_start = (right * -20 + End) + FVector(Start.X, Start.Y, Start.Z + 10);
-	FVector r_end = (right * -50 + End * 70) + FVector(Start.X, Start.Y, Start.Z);
-
-	//DrawDebugLine(GetWorld(), Start, End * 80 + FVector(Start.X, Start.Y, Start.Z - 50), FColor::Black, false, 0.1, 0, 5);
-	//DrawDebugLine(GetWorld(), Start, h_end, FColor::Green, false, 0.1, 0, 5);
-	//DrawDebugLine(GetWorld(), Start, l_end, FColor::Blue, false, 0.1, 0, 5);
-	//DrawDebugLine(GetWorld(), Start, r_end , FColor::Red, false, 0.1, 0, 5);
-
-	GetWorld()->LineTraceSingleByProfile(THit, Start, End * 90 + Start, "BlockAll", Params);
-	GetWorld()->LineTraceSingleByProfile(THit2, Start, h_end, "BlockAll", Params);
-	GetWorld()->LineTraceSingleByProfile(THit3, Start, l_end, "BlockAll", Params);
-	GetWorld()->LineTraceSingleByProfile(THit4, Start, r_end, "BlockAll", Params);
-
-	TArray<FHitResult> Hittmp = { THit , THit2 , THit3, THit4 };
-	int size = 0;
-	for (int i = 0; i < 3; i++) {
-		if (Hittmp[i].IsValidBlockingHit()) {
-			size += 1;
-		}
-	}
-	
-	if (THit.IsValidBlockingHit()) {
-		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("2"));
-		return (THit.Normal + THit2.Normal + THit3.Normal + THit4.Normal)/size;
-	}
-
-	return FVector::Zero();
-}
 
 double UCustomMovementComponent::AngleBetween(FVector a, FVector b)
 {
 	//θ = cos-1( (a · b) / (|a| * |b|) )
-	//θ=acos(v1⋅v2/||v1||||v2||)
 	double angle = 0.0f;
-	
 	
 	b.Normalize();
 	a.Normalize();
@@ -272,15 +231,6 @@ double UCustomMovementComponent::AngleBetween(FVector a, FVector b)
 	return angle;
 }
 
-void UCustomMovementComponent::Dotracing()
-{
-	
-}
-
-bool UCustomMovementComponent::CanClimb() const
-{
-	return false;
-}
 
 bool UCustomMovementComponent::UpdateAverageHit()
 {
@@ -335,8 +285,17 @@ bool UCustomMovementComponent::UpdateAverageHit()
 
 bool UCustomMovementComponent::ValidToFloor()
 {
+	FHitResult FHit;
+	FVector Start = UpdatedComponent->GetComponentLocation();
+	FVector End = -UpdatedComponent->GetUpVector();
+	FRotator Rt = UpdatedComponent->GetComponentRotation();
+	auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
+	Rt.Pitch = -Rt.Pitch;
+	Rt.Yaw = -Rt.Yaw;
+	Rt.Roll = -Rt.Roll;
 
-	return false;
+	return GetWorld()->LineTraceSingleByProfile(FHit, FVector(Start.X, Start.Y, Start.Z - 120), End * 50 + Start, "BlockAll", Params);
+
 }
 
 void UCustomMovementComponent::MoveAlongWall(const FVector& InVelocity, float DeltaSeconds, FStepDownResult* OutStepDownResult)
@@ -359,14 +318,8 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 	FVector End = UpdatedComponent->GetForwardVector();
 	auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
 	float remainingTime = deltaTime;
-	/*while ((remainingTime >= MIN_TICK_TIME) && (Iterations < MaxSimulationIterations) && CharacterOwner && (CharacterOwner->Controller || bRunPhysicsWithNoController || (CharacterOwner->GetLocalRole() == ROLE_SimulatedProxy)))
-	{
-		Iterations++;
-		bJustTeleported = false;
-		const float timeTick = GetSimulationTimeStep(remainingTime, Iterations);
-		remainingTime -= timeTick;*/
+
 		UpdateAverageHit();
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("1"));
 		CurrentClimbingNormal = Average_WallHit.Normal;
 		CurrentClimbingPosition = Average_WallHit.ImpactPoint;
 
@@ -376,6 +329,9 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 		Move_left_right = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Y;
 		Move_up_down = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Z;
 
+
+
+		
 		
 		if (!bWantsToClimb || CurrentClimbingNormal.IsZero())
 		{
@@ -383,7 +339,14 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 			bWantsToClimb = false;
 			SetMovementMode(EMovementMode::MOVE_Falling);
 			FHitResult Hit(1.f);
-			SafeMoveUpdatedComponent(Velocity, FQuat(0,0,0,0), true, Hit);
+			SafeMoveUpdatedComponent(Velocity, FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0), true, Hit);
+			return;
+		}
+		if (ValidToFloor()) {
+			bWantsToClimb = false;
+			SetMovementMode(EMovementMode::MOVE_Walking);
+			FHitResult Hit(1.f);
+			SafeMoveUpdatedComponent(Velocity, FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0), true, Hit);
 			return;
 		}
 
@@ -400,7 +363,7 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 
 		const FVector OldLocation = UpdatedComponent->GetComponentLocation();
 
-		//MoveAlongClimbingSurface(deltaTime);
+	
 		const FVector Adjusted = Velocity * deltaTime;
 
 		FHitResult Hit(1.f);
@@ -415,7 +378,7 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 		if (Hit.Time < 1.f)
 		{
 			HandleImpact(Hit, deltaTime, Adjusted);
-			// PhysFlying
+	
 			SlideAlongSurface(Adjusted, (1.f - Hit.Time), Hit.Normal, Hit, true);
 		}
 
@@ -433,12 +396,7 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 
 		constexpr bool bSweep = true;
 		UpdatedComponent->MoveComponent(Offset * deltaTime * 2, Rotation, bSweep);
-	//}
 
-	//float remainingTime = deltaTime;
-	//bOrientRotationToMovement = false;
-
-	//SnapToClimbingSurface(deltaTime);
 }
 	
 
