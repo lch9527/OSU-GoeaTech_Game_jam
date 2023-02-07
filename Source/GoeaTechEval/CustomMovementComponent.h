@@ -81,6 +81,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		virtual bool DoJump(bool bReplayingMoves) override;
 		bool Tryclimb();
 		FVector GetClimbSurfaceNormal() const;
+		FHitResult Average_WallHit;
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement) UCustomMovementComponent* CustomMovementComponent;
 		UFUNCTION(BlueprintPure) FORCEINLINE UCustomMovementComponent* GetCostomCharacterMovement() const { return CustomMovementComponent; }
@@ -101,6 +102,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 		virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 		virtual void InitializeComponent() override;
+		bool ValidToFloor();
 
 		
 		
@@ -116,6 +118,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		
 		void EnterClimb(EMovementMode PrevMode, ECustomMovementMode PrevCustomMode);
 		void Dotracing();
+		bool UpdateAverageHit();
 		void ExitClimb();
 		double AngleBetween(FVector a, FVector b);
 		bool CanClimb() const;

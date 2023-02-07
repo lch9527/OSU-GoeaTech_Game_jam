@@ -132,7 +132,7 @@ void AGoeaTechEvalCharacter::MoveForward(float Value)
 		Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		if (CustomCharacterMovementComponent->IsCliming())
 		{
-			Direction = FVector::CrossProduct(CustomCharacterMovementComponent->GetClimbSurfaceNormal(), -GetActorRightVector());
+			Direction = FVector::CrossProduct(CustomCharacterMovementComponent->Average_WallHit.Normal, -GetActorRightVector());
 		}
 		AddMovementInput(Direction, Value);
 	}
@@ -158,7 +158,7 @@ void AGoeaTechEvalCharacter::MoveRight(float Value)
 		Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		if (CustomCharacterMovementComponent->IsCliming())
 		{
-			Direction = FVector::CrossProduct(CustomCharacterMovementComponent->GetClimbSurfaceNormal(), GetActorUpVector());
+			Direction = FVector::CrossProduct(CustomCharacterMovementComponent->Average_WallHit.Normal, GetActorUpVector());
 			
 		}
 		// add movement in that direction
