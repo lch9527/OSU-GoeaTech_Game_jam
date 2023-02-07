@@ -99,6 +99,8 @@ void UCustomMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSec
 	
 }
 
+
+
 void UCustomMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds)
 {
 	Super::UpdateCharacterStateAfterMovement(DeltaSeconds);
@@ -199,7 +201,7 @@ void UCustomMovementComponent::ExitClimb()
 bool UCustomMovementComponent::Tryclimb()
 {
 	if (!bWantsToClimb) {
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("wantsFalse"));
+		
 		return false;
 	}
 	UpdateAverageHit();
@@ -317,12 +319,10 @@ bool UCustomMovementComponent::ValidToTop()
 	FVector End = Up * 50 + Frount * 50 + Self;
 	FVector Start = Up * 100 + Frount * 50 + Self;
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Purple, false, 0.1, 0, 5);
-	DrawDebugLine(GetWorld(), Up * 80 + Self, Up * 80 + Frount * 50 + Self, FColor::Purple, false, 0.1, 0, 5);
 
 	auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
 
-	if (!GetWorld()->LineTraceSingleByProfile(THit2, Up * 80 + Self, Up * 80 + Frount * 50 + Self, "BlockAll", Params))
+	if (!GetWorld()->LineTraceSingleByProfile(THit2, Up * 80 + Self, Up * 80 + Frount * 80 + Self, "BlockAll", Params))
 	{
 		return GetWorld()->LineTraceSingleByProfile(THit, Start, End, "BlockAll", Params);
 	}

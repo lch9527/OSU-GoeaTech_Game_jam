@@ -83,8 +83,7 @@ public:
 	
 	FCollisionQueryParams GetIgnoreCharacterParams() const;
 
-	UFUNCTION(BlueprintCallable)
-		FVector PrintHit(FHitResult WallHit);
+
 
 	
 };

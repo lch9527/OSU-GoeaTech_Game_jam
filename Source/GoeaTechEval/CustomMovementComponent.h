@@ -67,9 +67,10 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 	public:
 		UCustomMovementComponent();
 		float CapR() const;
+		float Friction = 10;
 		UPROPERTY(BlueprintReadOnly) float Move_left_right = 0.f;
 		UPROPERTY(BlueprintReadOnly) float Move_up_down = 0.f;
-		UPROPERTY(BlueprintReadWrite) float Friction = 10;
+		UFUNCTION(BlueprintCallable) void Set_Friction(float F) { Friction = F; }
 
 		virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 		virtual void UpdateCharacterStateAfterMovement(float DeltaSeconds) override;
@@ -112,6 +113,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		bool bWantsToClimb = false;
 		FVector CurrentClimbingNormal;
 		FVector CurrentClimbingPosition;
+		
 		UPROPERTY(BlueprintReadWrite) bool Onclimb = false;
 		
 		UPROPERTY(BlueprintReadWrite) float Climb_speed = 300.f;

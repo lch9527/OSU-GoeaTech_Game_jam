@@ -171,18 +171,15 @@ FCollisionQueryParams AGoeaTechEvalCharacter::GetIgnoreCharacterParams() const
 	FCollisionQueryParams Params;
 	//ACharacter
 	TArray<AActor*> CharacterChildren;
-	//GetAllChildActors(CharacterChildren);
-	//Params.AddIgnoredActors(CharacterChildren);
+	GetAllChildActors(CharacterChildren);
+	Params.AddIgnoredActors(CharacterChildren);
 	//Collision Cylinder
 	Params.AddIgnoredActor(this);
 
 	return Params;
 }
 
-FVector AGoeaTechEvalCharacter::PrintHit(FHitResult WallHit)
-{
-	return WallHit.ImpactPoint;;
-}
+
 
 void AGoeaTechEvalCharacter::Tick(float DeltaTime)
 {
