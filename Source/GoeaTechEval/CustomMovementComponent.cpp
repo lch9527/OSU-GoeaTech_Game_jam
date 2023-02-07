@@ -92,7 +92,7 @@ void UCustomMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSec
 	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
 	/*GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("1111"));*/
 	if (IsFalling()) {
-		bWantsToClimb = true;
+		//bWantsToClimb = true;
 		Tryclimb();
 	}
 	
@@ -134,16 +134,12 @@ bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 		auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
 		FHitResult Hit;
 		GetWorld()->LineTraceSingleByProfile(Hit, Start, Hit.Normal * 2, "BlockAll", Params);
-		Velocity += Hit.Normal * WallJumpOffForce;
-		Velocity.Z += 300.f;
+		Acceleration += Hit.Normal * 200;
 		bWantsToClimb = false;
-		SetMovementMode(EMovementMode::MOVE_Falling);
-		
-		
+		return false;
 	}
 	else {
 		bWantsToClimb = true;
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("TryClimb"));
 		if (!Tryclimb()) {
 			if (Super::DoJump(bReplayingMoves))
 			{
@@ -214,7 +210,6 @@ bool UCustomMovementComponent::Tryclimb()
 		Safe_ToClimb = true;
 	}
 	else {
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("Hitfalse"));
 		Safe_ToClimb = false;
 
 		return false;
@@ -323,7 +318,6 @@ bool UCustomMovementComponent::ValidToTop()
 	FVector Start = Up * 100 + Frount * 50 + Self;
 
 	DrawDebugLine(GetWorld(), Start, End, FColor::Purple, false, 0.1, 0, 5);
-
 	DrawDebugLine(GetWorld(), Up * 80 + Self, Up * 80 + Frount * 50 + Self, FColor::Purple, false, 0.1, 0, 5);
 
 	auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
@@ -367,7 +361,12 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 		Move_left_right = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Y;
 		Move_up_down = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Z;
 
-
+		if (bWantsToClimb) {
+			//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("true"));
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("false"));
+		}
 
 		
 		
@@ -388,12 +387,15 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 			return;
 		}
 		if (ValidToTop()) {
-			bWantsToClimb = false;
-
 			
+
+			FHitResult Hit(1.f);
 			AnimInstance->Montage_Play(Hang_to_Crouch_Montage);
+			bWantsToClimb = true;
+			Velocity = FVector(Velocity.X, Velocity.Y, 10);
 			const FRotator StandRotation = FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0);
-			UpdatedComponent->SetRelativeRotation(UpdatedComponent->GetComponentRotation());
+			UpdatedComponent->SetRelativeRotation(StandRotation);
+			SafeMoveUpdatedComponent(Velocity, FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0), true, Hit);
 			//SetMovementMode(EMovementMode::MOVE_Walking);
 			
 			return;
@@ -403,7 +405,7 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 
 		if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
 		{
-			constexpr float Friction = 10.0f;
+			
 			constexpr bool bFluid = false;
 			CalcVelocity(deltaTime, Friction, bFluid, 900.f);
 		}
@@ -476,7 +478,7 @@ void UCustomMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovem
 
 	if (IsCliming()) {
 		bOrientRotationToMovement = false;
-		bWantsToClimb = true;
+		//bWantsToClimb = true;
 	}
 	else {
 		FHitResult Hit(1.f);

@@ -59,11 +59,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 	};
 
 	UPROPERTY(EditDefaultsOnly) float ClimeSpeed = 300.f;
-	UPROPERTY(EditDefaultsOnly) float WallRunPullAwayAngle = 75;
-	UPROPERTY(EditDefaultsOnly) float WallAttractionForce = 200.f;
-	UPROPERTY(EditDefaultsOnly) float MinWallRunHeight = 50.f;
-	UPROPERTY(EditDefaultsOnly) UCurveFloat* WallRunGravityScaleCurve;
-	UPROPERTY(EditDefaultsOnly) float WallJumpOffForce = 300.f;
+	
 
 	UPROPERTY(EditDefaultsOnly) AGoeaTechEvalCharacter* GoeaCharacterOwner;
 
@@ -73,6 +69,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		float CapR() const;
 		UPROPERTY(BlueprintReadOnly) float Move_left_right = 0.f;
 		UPROPERTY(BlueprintReadOnly) float Move_up_down = 0.f;
+		UPROPERTY(BlueprintReadWrite) float Friction = 10;
 
 		virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 		virtual void UpdateCharacterStateAfterMovement(float DeltaSeconds) override;
@@ -116,6 +113,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		FVector CurrentClimbingNormal;
 		FVector CurrentClimbingPosition;
 		UPROPERTY(BlueprintReadWrite) bool Onclimb = false;
+		
 		UPROPERTY(BlueprintReadWrite) float Climb_speed = 300.f;
 
 	private:
