@@ -55,6 +55,7 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		typedef FNetworkPredictionData_Client_Character Super;
 
 		virtual FSavedMovePtr AllocateNewMove() override;
+		
 	};
 
 	UPROPERTY(EditDefaultsOnly) float ClimeSpeed = 300.f;
@@ -91,7 +92,12 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		UFUNCTION(BlueprintPure) bool Is_Stop() const { return Velocity.Size() <= 10 ? true : false; }
 		UFUNCTION(BlueprintPure) bool IsCliming() const { return IsCustomMovementMode(CMOVE_Climb); }
 		UFUNCTION(BlueprintPure) bool IsCustomMovementMode(ECustomMovementMode InCustomMovementMode) const;
-		
+
+		UPROPERTY(Category = "Climbing", EditDefaultsOnly)
+			UAnimMontage* Hang_to_Crouch_Montage;
+
+		UPROPERTY()
+			UAnimInstance* AnimInstance;
 		
 
 
@@ -102,11 +108,11 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 		virtual void InitializeComponent() override;
 		bool ValidToFloor();
+		bool ValidToTop();
 
 		
 		
 		bool bWantsToClimb = false;
-		FHitResult WallHit, WallHit2, WallHit3, WallHit4;
 		FVector CurrentClimbingNormal;
 		FVector CurrentClimbingPosition;
 		UPROPERTY(BlueprintReadWrite) bool Onclimb = false;
@@ -114,14 +120,14 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 
 	private:
 
-		
+		virtual void BeginPlay() override;
 		void EnterClimb(EMovementMode PrevMode, ECustomMovementMode PrevCustomMode);
 
 		bool UpdateAverageHit();
 		void ExitClimb();
 		double AngleBetween(FVector a, FVector b);
 	
-		virtual void MoveAlongWall(const FVector& InVelocity, float DeltaSeconds, FStepDownResult* OutStepDownResult = NULL);
+		
 		void PhysClimb(float deltaTime, int32 Iterations);
 
 		

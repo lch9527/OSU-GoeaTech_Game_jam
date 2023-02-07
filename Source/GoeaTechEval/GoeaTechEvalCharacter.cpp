@@ -171,8 +171,8 @@ FCollisionQueryParams AGoeaTechEvalCharacter::GetIgnoreCharacterParams() const
 	FCollisionQueryParams Params;
 	//ACharacter
 	TArray<AActor*> CharacterChildren;
-	GetAllChildActors(CharacterChildren);
-	Params.AddIgnoredActors(CharacterChildren);
+	//GetAllChildActors(CharacterChildren);
+	//Params.AddIgnoredActors(CharacterChildren);
 	//Collision Cylinder
 	Params.AddIgnoredActor(this);
 

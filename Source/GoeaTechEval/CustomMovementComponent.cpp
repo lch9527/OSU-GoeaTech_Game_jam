@@ -80,6 +80,8 @@ FSavedMovePtr UCustomMovementComponent::FNetworkPredictionData_Client_Custom::Al
 	return FSavedMovePtr(new FSavedMove_Custom());
 }
 
+
+
 UCustomMovementComponent::UCustomMovementComponent()
 {
 	NavAgentProps.bCanCrouch = true;
@@ -133,16 +135,23 @@ bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 		GetWorld()->LineTraceSingleByProfile(Hit, Start, Hit.Normal * 2, "BlockAll", Params);
 		Velocity += Hit.Normal * WallJumpOffForce;
 		Velocity.Z += 300.f;
-		//bWantsToClimb = false;
+		bWantsToClimb = false;
 		SetMovementMode(EMovementMode::MOVE_Falling);
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("2"));
-		Super::DoJump(bReplayingMoves);
+		
+		
 		return true;
 	}
-	if (Super::DoJump(bReplayingMoves))
-	{
-		return true;
+	else {
+		bWantsToClimb = true;
+		if (!Tryclimb()) {
+			if (Super::DoJump(bReplayingMoves))
+			{
+				return true;
+			}
+		}
+		
 	}
+	
 	return false;
 }
 float UCustomMovementComponent::CapR() const
@@ -192,9 +201,10 @@ void UCustomMovementComponent::ExitClimb()
 
 bool UCustomMovementComponent::Tryclimb()
 {
-	/*if (!bWantsToClimb) {
+	if (!bWantsToClimb) {
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("2"));
 		return false;
-	}*/
+	}
 	UpdateAverageHit();
 
 	if (UpdateAverageHit())
@@ -298,9 +308,33 @@ bool UCustomMovementComponent::ValidToFloor()
 
 }
 
-void UCustomMovementComponent::MoveAlongWall(const FVector& InVelocity, float DeltaSeconds, FStepDownResult* OutStepDownResult)
+bool UCustomMovementComponent::ValidToTop()
 {
+	FHitResult THit, THit2;
+	FVector Self = UpdatedComponent->GetComponentLocation();
+	FVector Up = UpdatedComponent->GetUpVector();
+	FVector Frount = UpdatedComponent->GetForwardVector();
+
+	FVector End = Up * 50 + Frount * 50 + Self;
+	FVector Start = Up * 100 + Frount * 50 + Self;
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Purple, false, 0.1, 0, 5);
+
+	DrawDebugLine(GetWorld(), Up * 80 + Self, Up * 80 + Frount * 50 + Self, FColor::Purple, false, 0.1, 0, 5);
+
+	auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
+
+	if (!GetWorld()->LineTraceSingleByProfile(THit2, Up * 80 + Self, Up * 80 + Frount * 50 + Self, "BlockAll", Params))
+	{
+		return GetWorld()->LineTraceSingleByProfile(THit, Start, End, "BlockAll", Params);
+	}
+
+
+	return false;
 }
+
+
+
 
 void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 {
@@ -347,6 +381,17 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 			SetMovementMode(EMovementMode::MOVE_Walking);
 			FHitResult Hit(1.f);
 			SafeMoveUpdatedComponent(Velocity, FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0), true, Hit);
+			return;
+		}
+		if (ValidToTop()) {
+			bWantsToClimb = false;
+
+			
+			AnimInstance->Montage_Play(Hang_to_Crouch_Montage);
+			const FRotator StandRotation = FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0);
+			UpdatedComponent->SetRelativeRotation(UpdatedComponent->GetComponentRotation());
+			//SetMovementMode(EMovementMode::MOVE_Walking);
+			
 			return;
 		}
 
@@ -398,6 +443,13 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 		UpdatedComponent->MoveComponent(Offset * deltaTime * 2, Rotation, bSweep);
 
 }
+
+void UCustomMovementComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AnimInstance = GetCharacterOwner()->GetMesh()->GetAnimInstance();
+}
 	
 
 void UCustomMovementComponent::PhysCustom(float deltaTime, int32 Iterations)
@@ -426,7 +478,7 @@ void UCustomMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovem
 		FHitResult Hit(1.f);
 		
 		SafeMoveUpdatedComponent(FVector(0,0,0), FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0), true, Hit);
-		bWantsToClimb = false;
+		//bWantsToClimb = false;
 		bOrientRotationToMovement = true;
 	}
 	
@@ -437,5 +489,6 @@ void UCustomMovementComponent::InitializeComponent()
 	Super::InitializeComponent();
 	
 	GoeaCharacterOwner = Cast<AGoeaTechEvalCharacter>(GetOwner());
+	
 }
 
