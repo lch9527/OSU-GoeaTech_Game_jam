@@ -91,7 +91,8 @@ void UCustomMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSec
 {
 	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
 	/*GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("1111"));*/
-	if (IsFalling() || bWantsToClimb) {
+	if (IsFalling()) {
+		bWantsToClimb = true;
 		Tryclimb();
 	}
 	
@@ -139,17 +140,17 @@ bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 		SetMovementMode(EMovementMode::MOVE_Falling);
 		
 		
-		return true;
 	}
 	else {
 		bWantsToClimb = true;
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("TryClimb"));
 		if (!Tryclimb()) {
 			if (Super::DoJump(bReplayingMoves))
 			{
 				return true;
 			}
+			
 		}
-		
 	}
 	
 	return false;
@@ -202,7 +203,7 @@ void UCustomMovementComponent::ExitClimb()
 bool UCustomMovementComponent::Tryclimb()
 {
 	if (!bWantsToClimb) {
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("2"));
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("wantsFalse"));
 		return false;
 	}
 	UpdateAverageHit();
@@ -213,7 +214,7 @@ bool UCustomMovementComponent::Tryclimb()
 		Safe_ToClimb = true;
 	}
 	else {
-		
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, TEXT("Hitfalse"));
 		Safe_ToClimb = false;
 
 		return false;
@@ -295,6 +296,9 @@ bool UCustomMovementComponent::UpdateAverageHit()
 
 bool UCustomMovementComponent::ValidToFloor()
 {
+	if (IsCliming() || bWantsToClimb) {
+		return false;
+	}
 	FHitResult FHit;
 	FVector Start = UpdatedComponent->GetComponentLocation();
 	FVector End = -UpdatedComponent->GetUpVector();
