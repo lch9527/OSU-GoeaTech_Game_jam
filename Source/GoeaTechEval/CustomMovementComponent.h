@@ -107,6 +107,8 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 		virtual void InitializeComponent() override;
 		bool ValidToFloor();
 		bool ValidToTop();
+		void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
+		FVector Up_location;
 
 		
 		

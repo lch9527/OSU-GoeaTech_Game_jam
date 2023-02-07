@@ -134,9 +134,9 @@ bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 	{
 		FVector Start = UpdatedComponent->GetComponentLocation();
 		auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
-		FHitResult Hit;
+		/*FHitResult Hit;
 		GetWorld()->LineTraceSingleByProfile(Hit, Start, Hit.Normal * 2, "BlockAll", Params);
-		Acceleration += Hit.Normal * 200;
+		Acceleration += Hit.Normal * 200;*/
 		bWantsToClimb = false;
 		return false;
 	}
@@ -322,7 +322,7 @@ bool UCustomMovementComponent::ValidToTop()
 
 	auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
 
-	if (!GetWorld()->LineTraceSingleByProfile(THit2, Up * 80 + Self, Up * 80 + Frount * 80 + Self, "BlockAll", Params))
+	if (!GetWorld()->LineTraceSingleByProfile(THit2, Up * 120 + Self, Up * 80 + Frount * 80 + Self, "BlockAll", Params))
 	{
 		return GetWorld()->LineTraceSingleByProfile(THit, Start, End, "BlockAll", Params);
 	}
@@ -361,12 +361,7 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 		Move_left_right = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Y;
 		Move_up_down = UKismetMathLibrary::LessLess_VectorRotator(Velocity, UpdatedComponent->GetComponentRotation()).Z;
 
-		if (bWantsToClimb) {
-			//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("true"));
-		}
-		else {
-			GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("false"));
-		}
+	
 
 		
 		
@@ -392,11 +387,11 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 			FHitResult Hit(1.f);
 			AnimInstance->Montage_Play(Hang_to_Crouch_Montage);
 			bWantsToClimb = true;
-			Velocity = FVector(Velocity.X, Velocity.Y, 10);
+			Velocity = FVector(Velocity.X, Velocity.Y, 50);
 			const FRotator StandRotation = FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0);
-			UpdatedComponent->SetRelativeRotation(StandRotation);
-			SafeMoveUpdatedComponent(Velocity, FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0), true, Hit);
-			//SetMovementMode(EMovementMode::MOVE_Walking);
+			//UpdatedComponent->SetRelativeRotation(UpdatedComponent->GetComponentRotation());
+			SafeMoveUpdatedComponent(Velocity, UpdatedComponent->GetComponentRotation(), true, Hit);
+			SetMovementMode(EMovementMode::MOVE_Walking);
 			
 			return;
 		}
@@ -422,14 +417,13 @@ void UCustomMovementComponent::PhysClimb(float deltaTime, int32 Iterations)
 		//climbingrotation:
 		const FQuat Current = UpdatedComponent->GetComponentQuat();
 		const FQuat Target = FRotationMatrix::MakeFromX(-CurrentClimbingNormal).ToQuat();
-		FQuat Climbingrotation = FMath::QInterpTo(Current, Target, deltaTime, 4);
+		FQuat Climbingrotation = FMath::QInterpTo(Current, Target, deltaTime, 6);
 
 		SafeMoveUpdatedComponent(Adjusted, Climbingrotation, true, Hit);
 
 		if (Hit.Time < 1.f)
 		{
 			HandleImpact(Hit, deltaTime, Adjusted);
-	
 			SlideAlongSurface(Adjusted, (1.f - Hit.Time), Hit.Normal, Hit, true);
 		}
 
