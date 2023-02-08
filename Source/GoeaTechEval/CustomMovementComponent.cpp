@@ -10,7 +10,7 @@
 
 
 
-
+// Standard Network set up from UCharacterMovementComponent
 bool UCustomMovementComponent::FSavedMove_Custom::CanCombineWith(const FSavedMovePtr& NewMove, ACharacter* InCharacter, float MaxDelta) const
 {
 	const FSavedMove_Custom* NewCustomMove = static_cast<FSavedMove_Custom*>(NewMove.Get());
@@ -21,16 +21,15 @@ bool UCustomMovementComponent::FSavedMove_Custom::CanCombineWith(const FSavedMov
 		return false;
 	}
 
-
 	return FSavedMove_Character::CanCombineWith(NewMove, InCharacter, MaxDelta);
 }
-
+// Standard Network set up from UCharacterMovementComponent
 void UCustomMovementComponent::FSavedMove_Custom::Clear()
 {
 	FSavedMove_Character::Clear();
 	Saved_ToClimb = 0;
 }
-
+// Standard Network set up from UCharacterMovementComponent
 uint8 UCustomMovementComponent::FSavedMove_Custom::GetCompressedFlags() const
 {
 
@@ -40,7 +39,7 @@ uint8 UCustomMovementComponent::FSavedMove_Custom::GetCompressedFlags() const
 
 	return Result;
 }
-
+// Standard Network set up from UCharacterMovementComponent
 void UCustomMovementComponent::FSavedMove_Custom::SetMoveFor(ACharacter* C, float InDeltaTime, FVector const& NewAccel, FNetworkPredictionData_Client_Character& ClientData)
 {
 	FSavedMove_Character::SetMoveFor(C, InDeltaTime, NewAccel, ClientData);
@@ -51,7 +50,7 @@ void UCustomMovementComponent::FSavedMove_Custom::SetMoveFor(ACharacter* C, floa
 	Saved_ToClimb = CharacterMovement->Safe_ToClimb;
 
 }
-
+// Standard Network set up from UCharacterMovementComponent
 void UCustomMovementComponent::FSavedMove_Custom::PrepMoveFor(ACharacter* C)
 {
 	FSavedMove_Character::PrepMoveFor(C);
@@ -61,19 +60,14 @@ void UCustomMovementComponent::FSavedMove_Custom::PrepMoveFor(ACharacter* C)
 	CharacterMovement->Safe_ToClimb = Saved_ToClimb;
 
 }
-
+// Standard Network set up from UCharacterMovementComponent
 UCustomMovementComponent::FNetworkPredictionData_Client_Custom::FNetworkPredictionData_Client_Custom(const UCharacterMovementComponent& ClientMovement)
 : Super(ClientMovement)
 {
 
 }
-/*
-UZippyCharacterMovementComponent::FNetworkPredictionData_Client_Zippy::FNetworkPredictionData_Client_Zippy(const UCharacterMovementComponent& ClientMovement)
-: Super(ClientMovement)
-{
-}
-*/
 
+// Standard Network set up from UCharacterMovementComponent
 FSavedMovePtr UCustomMovementComponent::FNetworkPredictionData_Client_Custom::AllocateNewMove()
 {
 	//FSavedMove_Custom
@@ -81,31 +75,38 @@ FSavedMovePtr UCustomMovementComponent::FNetworkPredictionData_Client_Custom::Al
 }
 
 
-
+// Standard Network set up from UCharacterMovementComponent
 UCustomMovementComponent::UCustomMovementComponent()
 {
 	NavAgentProps.bCanCrouch = true;
 }
 
+
+// If it is Falling, try to climb in the air 
 void UCustomMovementComponent::UpdateCharacterStateBeforeMovement(float DeltaSeconds)
 {
 	Super::UpdateCharacterStateBeforeMovement(DeltaSeconds);
-	/*GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Yellow, TEXT("1111"));*/
 	if (IsFalling()) {
-		//bWantsToClimb = true;
 		Tryclimb();
 	}
-	
-	
 }
-
 
 
 void UCustomMovementComponent::UpdateCharacterStateAfterMovement(float DeltaSeconds)
 {
 	Super::UpdateCharacterStateAfterMovement(DeltaSeconds);
 }
+// Standard Network set up from UCharacterMovementComponent
+void UCustomMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
+{
+	Super::UpdateFromCompressedFlags(Flags);
 
+	Safe_ToClimb = (Flags & FSavedMove_Custom::FLAG_Custom_0) != 0;
+
+
+}
+
+// Standard Network set up from UCharacterMovementComponent
 FNetworkPredictionData_Client* UCustomMovementComponent::GetPredictionData_Client() const
 {
 	check(PawnOwner != nullptr)
@@ -127,6 +128,7 @@ bool UCustomMovementComponent::CanAttemptJump() const
 	return Super::CanAttemptJump() || IsCliming();
 }
 
+//DoJump from UCharacterMovementComponent, if it is inCliming, jump off from wall
 bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 {
 	
@@ -134,9 +136,6 @@ bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 	{
 		FVector Start = UpdatedComponent->GetComponentLocation();
 		auto Params = GoeaCharacterOwner->GetIgnoreCharacterParams();
-		/*FHitResult Hit;
-		GetWorld()->LineTraceSingleByProfile(Hit, Start, Hit.Normal * 2, "BlockAll", Params);
-		Acceleration += Hit.Normal * 200;*/
 		bWantsToClimb = false;
 		return false;
 	}
@@ -150,21 +149,12 @@ bool UCustomMovementComponent::DoJump(bool bReplayingMoves)
 			
 		}
 	}
-	
 	return false;
 }
-float UCustomMovementComponent::CapR() const
-{
-	return GoeaCharacterOwner->GetCapsuleComponent()->GetScaledCapsuleRadius();
-}
 
-void UCustomMovementComponent::Enable_Climb()
-{
-}
 
-void UCustomMovementComponent::Disable_Climb()
-{
-}
+
+
 
 bool UCustomMovementComponent::IsCustomMovementMode(ECustomMovementMode InCustomMovementMode) const
 {
@@ -173,30 +163,7 @@ bool UCustomMovementComponent::IsCustomMovementMode(ECustomMovementMode InCustom
 
 
 
-void UCustomMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
-{
-	Super::UpdateFromCompressedFlags(Flags);
 
-	Safe_ToClimb = (Flags & FSavedMove_Custom::FLAG_Custom_0) != 0;
-	
-
-}
-
-//void UCustomMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
-//{
-//	Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
-//
-//}
-
-void UCustomMovementComponent::EnterClimb(EMovementMode PrevMode, ECustomMovementMode PrevCustomMode)
-{
-	FVector Start = UpdatedComponent->GetComponentLocation();
-}
-
-void UCustomMovementComponent::ExitClimb()
-{
-
-}
 
 bool UCustomMovementComponent::Tryclimb()
 {

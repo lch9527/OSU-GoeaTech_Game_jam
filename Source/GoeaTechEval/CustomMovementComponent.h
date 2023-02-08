@@ -24,7 +24,7 @@ UCLASS()
 class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
-
+	// Standard set up from UCharacterMovementComponent
 	class FSavedMove_Custom : public FSavedMove_Character
 	{
 	public:
@@ -59,78 +59,72 @@ class GOEATECHEVAL_API UCustomMovementComponent : public UCharacterMovementCompo
 	};
 
 	UPROPERTY(EditDefaultsOnly) float ClimeSpeed = 300.f;
-	
-
 	UPROPERTY(EditDefaultsOnly) AGoeaTechEvalCharacter* GoeaCharacterOwner;
 
 	
 	public:
 		UCustomMovementComponent();
-		float CapR() const;
+		// Climbing vriable 
 		float Friction = 10;
 		UPROPERTY(BlueprintReadOnly) float Move_left_right = 0.f;
 		UPROPERTY(BlueprintReadOnly) float Move_up_down = 0.f;
 		UFUNCTION(BlueprintCallable) void Set_Friction(float F) { Friction = F; }
 
+		// Override state update
+		virtual void UpdateFromCompressedFlags(uint8 Flags) override;
+		virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
+		virtual void InitializeComponent() override;
 		virtual void UpdateCharacterStateBeforeMovement(float DeltaSeconds) override;
 		virtual void UpdateCharacterStateAfterMovement(float DeltaSeconds) override;
-
 		virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 		virtual bool CanAttemptJump() const override;
 		virtual bool DoJump(bool bReplayingMoves) override;
-		bool Tryclimb();
-		FHitResult Average_WallHit;
 
+		// Detection climb
+		bool Tryclimb();
+		// Average hit information by 5 different hit point
+		FHitResult Average_WallHit;
+		bool UpdateAverageHit();
+		
+
+		// Enable Ik
+		UFUNCTION(BlueprintPure) bool Is_Stop() const { return Velocity.Size() <= 10 ? true : false; }
+		// Cheak MovementMode
 		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement) UCustomMovementComponent* CustomMovementComponent;
 		UFUNCTION(BlueprintPure) FORCEINLINE UCustomMovementComponent* GetCostomCharacterMovement() const { return CustomMovementComponent; }
-
-
-		UFUNCTION(BlueprintCallable) void Enable_Climb();
-		UFUNCTION(BlueprintCallable) void Disable_Climb();
-		UFUNCTION(BlueprintPure) bool Is_Stop() const { return Velocity.Size() <= 10 ? true : false; }
 		UFUNCTION(BlueprintPure) bool IsCliming() const { return IsCustomMovementMode(CMOVE_Climb); }
 		UFUNCTION(BlueprintPure) bool IsCustomMovementMode(ECustomMovementMode InCustomMovementMode) const;
-
 		UPROPERTY(Category = "Climbing", EditDefaultsOnly)
 			UAnimMontage* Hang_to_Crouch_Montage;
-
 		UPROPERTY()
 			UAnimInstance* AnimInstance;
 		
 
 
 	protected:
-		virtual void UpdateFromCompressedFlags(uint8 Flags) override;
-		//virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
-		virtual void PhysCustom(float deltaTime, int32 Iterations) override;
-		virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
-		virtual void InitializeComponent() override;
-		bool ValidToFloor();
-		bool ValidToTop();
-		void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
+		// Situation check virable 
 		FVector Up_location;
-
-		
-		
 		bool bWantsToClimb = false;
 		FVector CurrentClimbingNormal;
 		FVector CurrentClimbingPosition;
+		// Situation check function
+		bool ValidToFloor();
+		bool ValidToTop();
+
+
 		
-		UPROPERTY(BlueprintReadWrite) bool Onclimb = false;
-		
-		UPROPERTY(BlueprintReadWrite) float Climb_speed = 300.f;
+		// override PhysCustom
+		void PhysClimb(float deltaTime, int32 Iterations);
+		virtual void PhysCustom(float deltaTime, int32 Iterations) override;
+		void OnAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
+	
 
 	private:
 
 		virtual void BeginPlay() override;
-		void EnterClimb(EMovementMode PrevMode, ECustomMovementMode PrevCustomMode);
-
-		bool UpdateAverageHit();
-		void ExitClimb();
+		//Math help function
 		double AngleBetween(FVector a, FVector b);
-	
-		
-		void PhysClimb(float deltaTime, int32 Iterations);
+
 
 		
 };
