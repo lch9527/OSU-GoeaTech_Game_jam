@@ -59,9 +59,7 @@ How Attack_c work:
 Attack_c takes the input of montage name and an array of combo Notifies. The montage will play the entire combo animation, but when time goes to combo Notifies, if the player does not press the attack key again, the entire combo animation will stop and play the Attack1-2 animation, which is the same name as combo Notifies. Overall, break the montage and play the rest single attack montage if the player did not press the attack key. 
 
 Current issue:
-The combo system still needs to add more check variables about how to perform different attack modes, such as charge attack, I managed to make a charge attack with brutal force, but when character charging, the input is still disabled. If I have more time , I will polish this system, make it easy to use and handle more attack modes, such as adding more variables about speed to trigger a dash attack, and also rewrite this function as c++ to make it faster. There have so many animations from the project I did not use, they are such delicate and well-made, it is pleasure to work with those animations, and 100% deserve a more exquisite system to handle them. The vibration and the adaptive triggers from ps5 controller will be awesome, I am not even put my hands on the execution animation, the parry system will be also amazing, I have seen the animation, is right there! Not to mention the excellent sound effect. I feel like I am a chef and lucky enough to get a ton of top ingredients, but I only have time to do an appetizer. It is top enjoyment to work with those animations, the attacking animation of the katana is the same as the real world, and the model of nodachi is not just a bigger katana, I can imagine this one used on horse riding。
-
-
+The combo system still needs to add more check variables about how to perform different attack modes, such as charge attack, I managed to make a charge attack with brutal force, but when character charging, the input is still disabled.
 =======================================================================================================================
 
 Climbing:
@@ -294,22 +292,6 @@ CustomMovementComponent.cpp
 Current issues/bugs:
 I believe I address the focus of the feature, the climbing is working and it can handle a lot edge case. The biggest bug is when climbing up, the root animation will always turn to the x-axes, I believe it is because the root animation has some issue, so the Transition between climbing and climbing up is not that intuitive. 
 
-If I have more time to finish this, I will focus on how to make better root motion animation, maybe reset the rotation. Polish the animation and speed. Also, disable the attack during climbing. Set up the attack from the wall, and the landing process, it will be so cool if I can perfectly combine the animation with the climbing. Also, the IK during climbing should be easy to add on, by using Control Rig, but I really don't have time to do it. 
 
 
 
-
-
-
-
-
-
-## Questionnaire
-
-I have using unreal engine for about a year, and 2 months about unity.  Most time I am developing is virtual reality application used for education and scientific research in the lab with unreal. I never touch the movement component before,  but spend 2 day to learn it, the climbing is working but still have space to improve. 
-
-The strength for me I will say the ability to abstract the function I try to achieve to a 3d math problem. once it is done, solving the problem is a matter of time. Of course times it will take a lot of time, but most time the mathematician is go further, so I can ask or learn from them. Reading the paper, doing some search, have a conversation will be really helpful. I made an algorithm for the assembly part in the lab, it can assemble lego, engine, and house in VR, it is a thing I completely created by myself, and can be used for different projects, I am proud of it. Also, I believe I have a solid debugging ability, the way I am doing that is to try to understand how everything works, step into/step out/step over. Is like a detective or medical diagnosis. As the only undergraduate RA in the lab, I help a lot with my colleague located the bug in c++. 
-
-The way I sharpen my skills as an engineer is by reading other people's code, understanding why their doing that, try to do the same function in a different way. My PhD colleague teaches me that if he tries to make an innovation, he has to start to read the paper that already exists. Also as a developer related to 3D, math is the best tool to use, a solid math foundation can really save a day. And doing an actual project can combine all the things above, and every time I can learn new stuff when I doing the project.
-
-As a software engineer, I strongly believe interests and passions are most important. No matter how high the salary at google is, the best guy always choice going to NASA. I saw people quit their job at Intel for a small Indie Game studio. I believe it is totally worthwhile, different than any other software engineer, the game developers actually build something else than software, it is something warm and soft, not just a cold machine. I love to spend time there, the video game is a privilege for modern people and I like to actually do something about it with professional people.
