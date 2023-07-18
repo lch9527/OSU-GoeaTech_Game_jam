@@ -1,7 +1,7 @@
 
-# GoeaTechEval by Chenghao Li
+#by Chenghao Li
 
-This project focus on Climbing system, and the part of the Combo System. 
+This project focuses on the Climbing system and the part of the Combo System. 
 
 
 
@@ -9,13 +9,13 @@ This project focus on Climbing system, and the part of the Combo System.
 ## Controls
 The player can move with WASD.
 
-Press space to jump in the open area, climbing when facing the wall. Press space again jump off the wall during the climbing.
+Press space to jump in the open area, climbing when facing the wall. Press space again jumps off the wall during the climbing.
 
-Left click to to light attack. Continue click at right time for combo.
+Left click to light attack. Continue clicking at the right time for a combo.
 
-"Q" for Iaido, hold "Q" for charge. Continue press at right time for combo
+"Q" for Iaido, hold "Q" for charge. Continue pressing at the right time for a combo
 
-"E" for dodge attack. Continue press at right time for combo
+"E" for dodge attack. Continue pressing at the right time for a combo
 
 
 
@@ -50,16 +50,18 @@ This is a functional animation montage. It contains 4 animations, grouped as Att
 A game designer should line up Attack1-4 and leave the connection time group alone. 
 
 ![ScreenShot](https://github.com/lch9527/immage-holder/blob/main/Use%20Attack_c.png?raw=true)
-A game designer only needs to passing the montage name and an array of Notifies to trigger next combo
+A game designer only needs to pass the montage name and an array of Notifies to trigger the next combo
 
 How Attack_c work:
 ![ScreenShot](https://github.com/lch9527/immage-holder/blob/main/Attack_c1.png?raw=true)
 ![ScreenShot](https://github.com/lch9527/immage-holder/blob/main/Attack_c2.png?raw=true)
 ![ScreenShot](https://github.com/lch9527/immage-holder/blob/main/Attack_c3.png?raw=true)
-Attack_c takes the input of montage name and an array of combo Notifies. The montage will play the entire combo animation, but when time goes to combo Notifies, if the player does not press the attack key again, the entire combo animation will stop and play the Attack1-2 animation, which is the same name as combo Notifies. Overall, break the montage and play the rest single attack montage if the player did not press the attack key. 
+Attack_c takes the input of the montage name and an array of combo Notifies. The montage will play the entire combo animation, but when time goes to combo Notifies, if the player does not press the attack key again, the entire combo animation will stop and play the Attack1-2 animation, which is the same name as combo Notifies. Overall, break the montage and play the rest single attack montage if the player did not press the attack key. 
 
 Current issue:
-The combo system still needs to add more check variables about how to perform different attack modes, such as charge attack, I managed to make a charge attack with brutal force, but when character charging, the input is still disabled.
+The combo system still needs to add more check variables about how to perform different attack modes, such as charge attack, I managed to make a charge attack with brutal force, but when character charging, the input is still disabled. 
+
+
 =======================================================================================================================
 
 Climbing:
@@ -67,7 +69,7 @@ Climbing:
 Critical functions
 
 Tryclimb()
-This function call when player want||can climb, the function call the UpdateAverageHit() function to check if the wall frount player climable, if it is, set the average normal. 
+This function call when the player wants||can climb, the function call the UpdateAverageHit() function to check if the wall front player climable, if it is, set the average normal. 
 ```C++
 
 CustomMovementComponent.h
@@ -101,7 +103,7 @@ bool UCustomMovementComponent::Tryclimb()
 ```
 UpdateAverageHit()
 
-Shoot 5 line to detect the wall front player wall climbing and trying climbing. Reture false if there not hit, return true if it is hit. Also average the normal of 5 line and set averagehit.normal to it. With the average normal, we can handle complicacy surface.
+Shoot 5 lines to detect the wall front player wall climbing and trying climbing. Return false if there no hit, return true if it is hit. Also, average the normal of 5 lines and set averagehit.normal to it. With the average normal, we can handle the complicacy surface.
 
 ![ScreenShot](https://github.com/lch9527/immage-holder/blob/main/Trace.png?raw=true)
 ```C++
@@ -291,6 +293,10 @@ CustomMovementComponent.cpp
 
 Current issues/bugs:
 I believe I address the focus of the feature, the climbing is working and it can handle a lot edge case. The biggest bug is when climbing up, the root animation will always turn to the x-axes, I believe it is because the root animation has some issue, so the Transition between climbing and climbing up is not that intuitive. 
+
+
+
+
 
 
 
